@@ -15,6 +15,8 @@ export default function SearchResult() {
   const { search, setSearch, searchMovie } = useSearch()
   const [searchRes, setSearchRes] = useState<VideoItem[]>([])
   const [loading, setLoading] = useState(false)
+  // 首批结果就绪标识（用于弱网优化：首批到达即停止 loading）
+  const firstBatchDoneRef = useRef(false)
 
   // 调用搜索内容
   const fetchSearchRes = async () => {
@@ -25,12 +27,18 @@ export default function SearchResult() {
     abortCtrlRef.current = controller
     setLoading(true)
     setSearchRes([])
+    firstBatchDoneRef.current = false
     try {
       await apiService.aggregatedSearch(
         search,
         selectedAPIs,
         customAPIs,
         newResults => {
+          // 首批结果到达时立刻结束 loading，提升首屏可用性
+          if (!firstBatchDoneRef.current && newResults.length > 0) {
+            firstBatchDoneRef.current = true
+            setLoading(false)
+          }
           setSearchRes(prevResults => {
             const allResults = [...prevResults, ...newResults]
             allResults.sort((a, b) => {

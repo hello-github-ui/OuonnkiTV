@@ -1,13 +1,139 @@
-import { API_SITES, API_CONFIG, PROXY_URL, M3U8_PATTERN } from '@/config/api.config'
+import {
+  API_SITES,
+  API_CONFIG,
+  PROXY_URL,
+  M3U8_PATTERN,
+  AGGREGATED_SEARCH_CONFIG,
+} from '@/config/api.config'
 import type { SearchResponse, DetailResponse, VideoItem, CustomApi } from '@/types'
 
 class ApiService {
+  // 简单的源健康度记录与请求去重缓存
+  private sourceHealth: Map<
+    string,
+    {
+      avgLatencyMs: number
+      successCount: number
+      failureCount: number
+      lastLatencyMs: number
+      lastUpdatedAt: number
+    }
+  > = new Map()
+
+  private inflightRequests: Map<string, Promise<SearchResponse>> = new Map()
+
+  private persistHealthKey = 'ouonnki-tv-source-health'
+
+  constructor() {
+    // 加载历史健康度（若存在）
+    try {
+      const str = localStorage.getItem(this.persistHealthKey)
+      if (str) {
+        const obj = JSON.parse(str)
+        if (obj && typeof obj === 'object') {
+          this.sourceHealth = new Map(Object.entries(obj)) as unknown as Map<
+            string,
+            {
+              avgLatencyMs: number
+              successCount: number
+              failureCount: number
+              lastLatencyMs: number
+              lastUpdatedAt: number
+            }
+          >
+        }
+      }
+    } catch {}
+  }
+
+  private saveHealth() {
+    try {
+      const obj: Record<string, unknown> = {}
+      for (const [k, v] of this.sourceHealth.entries()) obj[k] = v
+      localStorage.setItem(this.persistHealthKey, JSON.stringify(obj))
+    } catch {}
+  }
+
+  private updateHealth(sourceCode: string, ok: boolean, latencyMs: number) {
+    const rec = this.sourceHealth.get(sourceCode) || {
+      avgLatencyMs: latencyMs,
+      successCount: 0,
+      failureCount: 0,
+      lastLatencyMs: latencyMs,
+      lastUpdatedAt: Date.now(),
+    }
+    rec.lastLatencyMs = latencyMs
+    rec.lastUpdatedAt = Date.now()
+    if (ok) {
+      rec.successCount += 1
+      // 指数平滑
+      rec.avgLatencyMs = rec.avgLatencyMs * 0.7 + latencyMs * 0.3
+    } else {
+      rec.failureCount += 1
+      // 失败也稍微拉高平均延迟
+      rec.avgLatencyMs = rec.avgLatencyMs * 0.8 + latencyMs * 0.2
+    }
+    this.sourceHealth.set(sourceCode, rec)
+    this.saveHealth()
+  }
+
+  private getSourceScore(sourceCode: string): number {
+    const rec = this.sourceHealth.get(sourceCode)
+    if (!rec) return 0
+    const total = rec.successCount + rec.failureCount
+    const successRate = total > 0 ? rec.successCount / total : 0.5
+    const latencyScore = 1 / Math.max(100, rec.avgLatencyMs) // 延迟越小，分越高
+    return successRate * 0.7 + latencyScore * 0.3
+  }
+
+  private getNetworkFactor(): number {
+    // 默认 1；弱网返回 < 1
+    const nav = navigator as any
+    const conn = nav && nav.connection
+    if (conn && typeof conn.effectiveType === 'string') {
+      const type = conn.effectiveType as string
+      if (type === 'slow-2g' || type === '2g') return 0.4
+      if (type === '3g') return 0.7
+      if (type === '4g') return 1
+    }
+    return 1
+  }
+
+  private getAdaptiveConcurrency(selectedAPIs: string[]): number {
+    const base = AGGREGATED_SEARCH_CONFIG.baseConcurrency ?? 3
+    const min = AGGREGATED_SEARCH_CONFIG.minConcurrency ?? 1
+    const max = AGGREGATED_SEARCH_CONFIG.maxConcurrency ?? 6
+    const netFactor = this.getNetworkFactor()
+
+    // 根据最近错误率动态调整（简单策略：失败较多则减并发）
+    let failureRatio = 0
+    let total = 0
+    for (const id of selectedAPIs) {
+      const rec = this.sourceHealth.get(id)
+      if (rec) {
+        total += rec.successCount + rec.failureCount
+        failureRatio += rec.failureCount
+      }
+    }
+    failureRatio = total > 0 ? failureRatio / total : 0
+    const healthFactor = Math.max(0.6, 1 - failureRatio) // 失败越多，系数越低，最低 0.6
+
+    const c = Math.round(base * netFactor * healthFactor)
+    return Math.min(max, Math.max(min, c))
+  }
+
   private async fetchWithTimeout(
     url: string,
     options: RequestInit = {},
     timeout = 10000,
+    externalSignal?: AbortSignal,
   ): Promise<Response> {
     const controller = new AbortController()
+    const onExternalAbort = () => controller.abort()
+    if (externalSignal) {
+      if (externalSignal.aborted) controller.abort()
+      else externalSignal.addEventListener('abort', onExternalAbort, { once: true })
+    }
     const timeoutId = setTimeout(() => controller.abort(), timeout)
 
     try {
@@ -20,11 +146,19 @@ class ApiService {
     } catch (error) {
       clearTimeout(timeoutId)
       throw error
+    } finally {
+      if (externalSignal) externalSignal.removeEventListener('abort', onExternalAbort)
     }
   }
 
   // 搜索视频
-  async searchVideos(query: string, source: string, customApi?: string): Promise<SearchResponse> {
+  async searchVideos(
+    query: string,
+    source: string,
+    customApi?: string,
+    signal?: AbortSignal,
+    timeoutMs: number = AGGREGATED_SEARCH_CONFIG.timeout || 8000,
+  ): Promise<SearchResponse> {
     try {
       if (!query) {
         throw new Error('缺少搜索参数')
@@ -43,33 +177,63 @@ class ApiService {
         ? `${customApi}${API_CONFIG.search.path}${encodeURIComponent(query)}`
         : `${API_SITES[source].api}${API_CONFIG.search.path}${encodeURIComponent(query)}`
 
-      const response = await this.fetchWithTimeout(PROXY_URL + encodeURIComponent(apiUrl), {
-        headers: API_CONFIG.search.headers,
-      })
+      // 请求去重（相同 URL + query）
+      const requestKey = PROXY_URL + encodeURIComponent(apiUrl)
+      const exec = async () => {
+        const start = performance.now()
+        try {
+          const response = await this.fetchWithTimeout(
+            requestKey,
+            {
+              headers: API_CONFIG.search.headers,
+            },
+            timeoutMs,
+            signal,
+          )
 
-      if (!response.ok) {
-        throw new Error(`API请求失败: ${response.status}`)
-      }
+          if (!response.ok) {
+            throw new Error(`API请求失败: ${response.status}`)
+          }
 
-      const data = await response.json()
+          const data = await response.json()
 
-      if (!data || !Array.isArray(data.list)) {
-        throw new Error('API返回的数据格式无效')
-      }
+          if (!data || !Array.isArray(data.list)) {
+            throw new Error('API返回的数据格式无效')
+          }
 
-      // 添加源信息到每个结果
-      data.list.forEach((item: VideoItem) => {
-        item.source_name = source === 'custom' ? '自定义源' : API_SITES[source].name
-        item.source_code = source
-        if (source === 'custom') {
-          item.api_url = customApi
+          // 添加源信息到每个结果
+          data.list.forEach((item: VideoItem) => {
+            item.source_name = source === 'custom' ? '自定义源' : API_SITES[source].name
+            item.source_code = source
+            if (source === 'custom') {
+              item.api_url = customApi
+            }
+          })
+
+          const end = performance.now()
+          this.updateHealth(source, true, end - start)
+
+          return {
+            code: 200,
+            list: data.list || [],
+          } as SearchResponse
+        } catch (err) {
+          const end = performance.now()
+          this.updateHealth(source, false, end - start)
+          throw err
+        } finally {
+          // 完成后移除去重 key
+          this.inflightRequests.delete(requestKey)
         }
-      })
-
-      return {
-        code: 200,
-        list: data.list || [],
       }
+
+      if (!this.inflightRequests.has(requestKey)) {
+        this.inflightRequests.set(requestKey, exec())
+      }
+
+      const result = await this.inflightRequests.get(requestKey)!
+
+      return result
     } catch (error) {
       console.error('搜索错误:', error)
       return {
@@ -303,12 +467,39 @@ class ApiService {
     }
 
     const seen = new Set<string>()
-    const limiter = this.createConcurrencyLimiter(3)
 
-    const tasks = selectedAPIs.map(apiId =>
+    // 动态并发
+    const dynamicLimit = this.getAdaptiveConcurrency(selectedAPIs)
+    const limiter = this.createConcurrencyLimiter(dynamicLimit)
+
+    // 源排序：优先健康、低延迟
+    const orderedAPIs = [...selectedAPIs].sort(
+      (a, b) => this.getSourceScore(b) - this.getSourceScore(a),
+    )
+
+    // Top-K 先达控制
+    const topK = Math.max(1, AGGREGATED_SEARCH_CONFIG.topKFirstBatch ?? 4)
+    let reachedTopK = 0
+    const perSourceControllers = new Map<string, AbortController>()
+    const abortRest = () => {
+      for (const [, c] of perSourceControllers) c.abort()
+    }
+    if (signal) {
+      // 全局取消时同时取消每个源
+      signal.addEventListener('abort', abortRest, { once: true })
+    }
+
+    const tasks = orderedAPIs.map(apiId =>
       limiter(async () => {
         if (aborted) return
         let results: VideoItem[] = []
+        const perCtrl = new AbortController()
+        perSourceControllers.set(apiId, perCtrl)
+        // 绑定外部取消
+        if (signal) {
+          if (signal.aborted) perCtrl.abort()
+          else signal.addEventListener('abort', () => perCtrl.abort(), { once: true })
+        }
         try {
           if (apiId.startsWith('custom_')) {
             const idx = parseInt(apiId.replace('custom_', ''))
@@ -319,14 +510,23 @@ class ApiService {
                 'custom',
                 customApi.url,
                 customApi.name,
+                perCtrl.signal,
               )
             }
           } else if (API_SITES[apiId]) {
-            results = await this.searchSingleSource(query, apiId)
+            results = await this.searchSingleSource(
+              query,
+              apiId,
+              undefined,
+              undefined,
+              perCtrl.signal,
+            )
           }
         } catch (error) {
           if (aborted) return
-          console.warn(`${apiId} 源搜索失败:`, error)
+          if ((error as Error).name !== 'AbortError') console.warn(`${apiId} 源搜索失败:`, error)
+        } finally {
+          perSourceControllers.delete(apiId)
         }
         if (aborted) return
 
@@ -338,10 +538,15 @@ class ApiService {
           }
           return false
         })
-        if (aborted || newUnique.length === 0) return
 
-        onNewResults(newUnique)
-      })
+        if (newUnique.length > 0) {
+          reachedTopK += 1
+          onNewResults(newUnique)
+          if (AGGREGATED_SEARCH_CONFIG.earlyAbortAfterTopK && reachedTopK >= topK && !aborted) {
+            abortRest()
+          }
+        }
+      }),
     )
 
     const allPromise = Promise.all(tasks)
@@ -362,9 +567,10 @@ class ApiService {
     source: string,
     customApi?: string,
     customName?: string,
+    signal?: AbortSignal,
   ): Promise<VideoItem[]> {
     try {
-      const result = await this.searchVideos(query, source, customApi)
+      const result = await this.searchVideos(query, source, customApi, signal)
       if (result.code === 200 && result.list) {
         // 如果是自定义源，更新源名称
         if (source === 'custom' && customName) {

@@ -144,6 +144,14 @@ export const AGGREGATED_SEARCH_CONFIG = {
   maxResults: 10000,
   parallelRequests: true,
   showSourceBadges: true,
+  // Top-K 先达：首批使用的最快来源数量
+  topKFirstBatch: 4,
+  // 是否在收到 Top-K 首批后中断其余慢源（默认仅首批优先，不中断其余）
+  earlyAbortAfterTopK: false,
+  // 并发控制：基础/最小/最大
+  baseConcurrency: 3,
+  minConcurrency: 1,
+  maxConcurrency: 6,
 }
 
 export const CUSTOM_API_CONFIG = {
