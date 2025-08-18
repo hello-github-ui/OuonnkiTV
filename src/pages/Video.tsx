@@ -9,6 +9,8 @@ import { apiService } from '@/services/api.service'
 import { useApiStore } from '@/store/apiStore'
 import { useViewingHistoryStore } from '@/store/viewingHistoryStore'
 import _ from 'lodash'
+import VideoProgressPreview from '@/components/VideoProgressPreview'
+import { useVideoPreview } from '@/hooks'
 
 export default function Video() {
   const location = useLocation()
@@ -21,6 +23,12 @@ export default function Video() {
 
   const playerRef = useRef<Player | null>(null)
   const containerRef = useRef<HTMLDivElement>(null)
+  const { canvasRef, setPreviewSource, onScrub, previewSize } = useVideoPreview({
+    width: 180,
+    height: 101,
+  })
+  const [previewLeft, setPreviewLeft] = useState(0)
+  const [previewVisible, setPreviewVisible] = useState(false)
 
   // 从 store 获取自定义 API 配置
   const { customAPIs } = useApiStore()
@@ -135,6 +143,9 @@ export default function Video() {
       ignores: ['download'],
     })
 
+    // 设置预览数据源：使用隐藏预览播放器进行独立 seek，不影响主播放器
+    setPreviewSource(detail.episodes[selectedEpisode])
+
     // 自动续播
     const existingHistory = viewingHistory.find(
       item =>
@@ -202,6 +213,64 @@ export default function Video() {
       }
     }
   }, [selectedEpisode, detail, sourceCode, vodId, addViewingHistory])
+
+  // 绑定进度条悬停事件，控制预览
+  useEffect(() => {
+    const container = containerRef.current
+    if (!container) return
+
+    // 可能的进度条选择器（不同版本样式有所差异）
+    const trySelectors = [
+      '.xgplayer-progress',
+      '.xgplayer-progress-outer',
+      '.xgplayer_progress',
+      '[data-index="progress"]',
+    ]
+    let progressEl: HTMLElement | null = null
+    for (const sel of trySelectors) {
+      const el = container.querySelector(sel) as HTMLElement | null
+      if (el) {
+        progressEl = el
+        break
+      }
+    }
+    // 如果找不到，退化为整个控制条区域
+    if (!progressEl) {
+      progressEl = container as HTMLElement
+    }
+
+    let rafPending = false
+    const handleMove = (ev: PointerEvent) => {
+      if (!playerRef.current) return
+      const rect = progressEl!.getBoundingClientRect()
+      const containerRect = container.getBoundingClientRect()
+      const x = ev.clientX - rect.left
+      const percent = Math.min(1, Math.max(0, x / rect.width))
+      const time = (playerRef.current.duration || 0) * percent
+
+      setPreviewVisible(true)
+      setPreviewLeft(rect.left + x - containerRect.left)
+
+      if (rafPending) return
+      rafPending = true
+      requestAnimationFrame(() => {
+        rafPending = false
+        onScrub(time)
+      })
+    }
+    const handleEnter = () => setPreviewVisible(true)
+    const handleLeave = () => setPreviewVisible(false)
+
+    progressEl.addEventListener('pointermove', handleMove, { passive: true })
+    progressEl.addEventListener('pointerenter', handleEnter, { passive: true })
+    progressEl.addEventListener('pointerleave', handleLeave, { passive: true })
+
+    return () => {
+      progressEl?.removeEventListener('pointermove', handleMove)
+      progressEl?.removeEventListener('pointerenter', handleEnter)
+      progressEl?.removeEventListener('pointerleave', handleLeave)
+    }
+  }, [selectedEpisode, detail, onScrub])
 
   // 处理集数切换
   const handleEpisodeChange = (index: number) => {
@@ -304,7 +373,20 @@ export default function Video() {
           </div>
         </CardHeader>
         <CardBody className="p-0">
-          <div id="player" ref={containerRef} className="aspect-video w-full rounded-lg bg-black" />
+          <div className="relative">
+            <div
+              id="player"
+              ref={containerRef}
+              className="aspect-video w-full rounded-lg bg-black"
+            />
+            <VideoProgressPreview
+              ref={canvasRef}
+              width={previewSize.width}
+              height={previewSize.height}
+              left={previewLeft}
+              visible={previewVisible}
+            />
+          </div>
         </CardBody>
       </Card>
 
