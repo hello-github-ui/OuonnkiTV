@@ -1,0 +1,374 @@
+[
+  {
+    "id": "source-f7d77f",
+    "name": "快龙资源(🔥)",
+    "url": "https://lz.118318.xyz/api.php/provide/vod/at/xml",
+    "isEnabled": true
+  },
+  {
+    "id": "source-301568",
+    "name": "暴风资源(🔥)",
+    "url": "http://bf.xoxowin86cisyap.com/api.php/provide/vod",
+    "isEnabled": true
+  },
+  {
+    "id": "source-2681f0",
+    "name": "新黑木耳(🔥)",
+    "url": "https://json.heimuer.xyz/api.php/provide/vod",
+    "isEnabled": true
+  },
+  {
+    "id": "source-3def56",
+    "name": "天翼资源(🔥)",
+    "url": "https://www.911ysw.top/tianyi.php/provide/vod/at/xml",
+    "isEnabled": true
+  },
+  {
+    "id": "source-e5e8d1",
+    "name": "最大资源(🔥)",
+    "url": "http://zuidazy.me/api.php/provide/vod/at/xml",
+    "isEnabled": true
+  },
+  {
+    "id": "source-4658a8",
+    "name": "新华为吧(🔥)",
+    "url": "https://huaweiba.live/api.php/provide/vod/at/xml",
+    "isEnabled": true
+  },
+  {
+    "id": "source-d24af8",
+    "name": "虎牙资源(🔥)",
+    "url": "https://www.huyaapi.com/api.php/provide/vod",
+    "isEnabled": true
+  },
+  {
+    "id": "source-b05a49",
+    "name": "漫道资源(🔥)",
+    "url": "http://www.mandao.site/api.php/provide/vod",
+    "isEnabled": true
+  },
+  {
+    "id": "source-858b1b",
+    "name": "黑墙资源(🔥)",
+    "url": "https://blackwallvideo.online/api.php/provide/vod/at/xml",
+    "isEnabled": true
+  },
+  {
+    "id": "source-66f49b",
+    "name": "独播资源(🔥)",
+    "url": "https://caiji.dbzy.tv/api.php/provide/vod/from/dbm3u8/at/xml",
+    "isEnabled": true
+  },
+  {
+    "id": "source-fcabf2",
+    "name": "红牛资源(🔥)",
+    "url": "https://www.hongniuzy2.com/api.php/provide/vod/at/xml",
+    "isEnabled": true
+  },
+  {
+    "id": "source-41230c",
+    "name": "量子资源(🔥)",
+    "url": "https://cj.lziapi.com/api.php/provide/vod/from/lzm3u8",
+    "isEnabled": true
+  },
+  {
+    "id": "source-6e5e1d",
+    "name": "极速资源(🔥)",
+    "url": "https://jszyapi.com/api.php/provide/vod",
+    "isEnabled": true
+  },
+  {
+    "id": "source-7dc597",
+    "name": "牛牛资源(🔥)",
+    "url": "https://api.niuniuzy.me/api.php/provide/vod/at/xml",
+    "isEnabled": true
+  },
+  {
+    "id": "source-5601f0",
+    "name": "鸭鸭资源(🔥)",
+    "url": "https://yayazy2.com/api.php/provide/vod/at/xml",
+    "isEnabled": true
+  },
+  {
+    "id": "source-98de79",
+    "name": "火狐资源(🔥)",
+    "url": "https://hhzyapi.com/api.php/provide/vod/from/hhm3u8",
+    "isEnabled": true
+  },
+  {
+    "id": "source-2bd86f",
+    "name": "飘凌资源(🔥)",
+    "url": "https://p2100.net/api.php/provide/vod",
+    "isEnabled": true
+  },
+  {
+    "id": "source-f68621",
+    "name": "无尽资源(🔥)",
+    "url": "https://api.wujinapi.me/api.php/provide/vod/from/wjm3u8/at/xml",
+    "isEnabled": true
+  },
+  {
+    "id": "source-916511",
+    "name": "阿里资源(🔥)",
+    "url": "https://alivod.com/api.php/provide/vod",
+    "isEnabled": true
+  },
+  {
+    "id": "source-df9176",
+    "name": "光速资源(🔥)",
+    "url": "https://api.guangsuapi.com/api.php/provide/vod",
+    "isEnabled": true
+  },
+  {
+    "id": "source-a07319",
+    "name": "卫士资源(🔥)",
+    "url": "https://360zy.com/api.php/provide/vod",
+    "isEnabled": true
+  },
+  {
+    "id": "source-994db7",
+    "name": "优库资源(🔥)",
+    "url": "https://api.ukuapi88.com/api.php/provide/vod/at/xmlsea",
+    "isEnabled": true
+  },
+  {
+    "id": "source-d06332",
+    "name": "闪电资源(🔥)",
+    "url": "https://shandianzy.com/api.php/provide/vod/at/xml",
+    "isEnabled": true
+  },
+  {
+    "id": "source-286b26",
+    "name": "卧龙影视(🔥)",
+    "url": "https://collect.wolongzyw.com/api.php/provide/vod/at/xml",
+    "isEnabled": true
+  },
+  {
+    "id": "source-ad4479",
+    "name": "速播影视(🔥)",
+    "url": "https://subocaiji.com/api.php/provide/vod/from/subyun/at/json",
+    "isEnabled": true
+  },
+  {
+    "id": "source-3a8c36",
+    "name": "索尼影视(🔥)",
+    "url": "https://suoniapi.com/api.php/provide/vod/at/xml",
+    "isEnabled": true
+  },
+  {
+    "id": "source-bfaf29",
+    "name": "高清影视(🔥)",
+    "url": "https://api.yzzy-api.com/inc/apijson.php",
+    "isEnabled": true
+  },
+  {
+    "id": "source-173782",
+    "name": "魔都影视(🔥)",
+    "url": "https://www.mdzyapi.com/api.php/provide/vod/at/xml",
+    "isEnabled": true
+  },
+  {
+    "id": "source-37247b",
+    "name": "圈凯影视(🔥)",
+    "url": "https://api.okzy.org/api.php/provide/vod/at/xml",
+    "isEnabled": true
+  },
+  {
+    "id": "source-0a52bc",
+    "name": "百度影视(🔥)",
+    "url": "https://api.apibdzy.com//api.php/provide/vod/at/xml",
+    "isEnabled": true
+  },
+  {
+    "id": "source-ef2bbe",
+    "name": "金鹰影视(🔥)",
+    "url": "https://jyzyapi.com/provide/vod/from/jym3u8/at/xml",
+    "isEnabled": true
+  },
+  {
+    "id": "source-b4c501",
+    "name": "新浪影视(🔥)",
+    "url": "https://api.xinlangapi.com/xinlangapi.php/provide/vod/at/xml",
+    "isEnabled": true
+  },
+  {
+    "id": "source-5c4e74",
+    "name": "非凡影视(🔥)",
+    "url": "http://api.ffzyapi.com/api.php/provide/vod/from/ffm3u8",
+    "isEnabled": true
+  },
+  {
+    "id": "source-c3f8e4",
+    "name": "影图影视(🔥)",
+    "url": "https://cj.vodimg.top/api.php/provide/vod",
+    "isEnabled": true
+  },
+  {
+    "id": "source-e5dac0",
+    "name": "梦梦影视(🔥)",
+    "url": "https://www.gtrgt.com//api.php/provide/vod/at/xml",
+    "isEnabled": true
+  },
+  {
+    "id": "source-d95349",
+    "name": "樂吧资源(🔞)",
+    "url": "http://lbapiby.com/api.php/provide/vod",
+    "isEnabled": true
+  },
+  {
+    "id": "source-fd46fb",
+    "name": "番号资源(🔞)",
+    "url": "http://fhapi9.com/api.php/provide/vod/at/xml",
+    "isEnabled": true
+  },
+  {
+    "id": "source-1c991d",
+    "name": "大地资源(🔞)",
+    "url": "https://dadiapi.com/api.php/provide/vod/at/xml",
+    "isEnabled": true
+  },
+  {
+    "id": "source-793f55",
+    "name": "苹果资源(🔞)",
+    "url": "https://www.pgxdy.com/api/xml.php",
+    "isEnabled": false
+  },
+  {
+    "id": "source-952a75",
+    "name": "淫水机云(🔞)",
+    "url": "https://www.xrbsp.com/api/xml.php",
+    "isEnabled": false
+  },
+  {
+    "id": "source-1f4057",
+    "name": "美少女云(🔞)",
+    "url": "https://www.msnii.com/api/xml.php",
+    "isEnabled": false
+  },
+  {
+    "id": "source-e3b29a",
+    "name": "香奶儿云(🔞)",
+    "url": "https://www.gdlsp.com/api/xml.php",
+    "isEnabled": false
+  },
+  {
+    "id": "source-c0a36d",
+    "name": "开心果云(🔞)",
+    "url": "https://www.kxgav.com/api/xml.php",
+    "isEnabled": false
+  },
+  {
+    "id": "source-ac392c",
+    "name": "小湿妹云(🔞)",
+    "url": "https://www.afasu.com/api/xml.php",
+    "isEnabled": false
+  },
+  {
+    "id": "source-4a6239",
+    "name": "色南国云(🔞)",
+    "url": "https://api.sexnguon.com/api.php/provide/vod/at/xml",
+    "isEnabled": true
+  },
+  {
+    "id": "source-161e99",
+    "name": "老色逼云(🔞)",
+    "url": "https://apilsbzy1.com/api.php/provide/vod/at/xml",
+    "isEnabled": true
+  },
+  {
+    "id": "source-82ae81",
+    "name": "奥斯卡云(🔞)",
+    "url": "https://aosikazy.com/api.php/provide/vod/at/xml",
+    "isEnabled": true
+  },
+  {
+    "id": "source-987323",
+    "name": "久久热云(🔞)",
+    "url": "https://99reapi.com/api.php/provide/vod/at/xml",
+    "isEnabled": true
+  },
+  {
+    "id": "source-adef41",
+    "name": "狼少年云(🔞)",
+    "url": "http://cjmygzy.com/inc/sapi.php?ac=videolist",
+    "isEnabled": true
+  },
+  {
+    "id": "source-79e7b1",
+    "name": "越资源云(🔞)",
+    "url": "https://apilsbzy1.com/api.php/provide/vod/at/xml",
+    "isEnabled": true
+  },
+  {
+    "id": "source-9c97d5",
+    "name": "一五五云(🔞)",
+    "url": "https://155api.com/api.php/provide/vod/vod/at/xml",
+    "isEnabled": true
+  },
+  {
+    "id": "source-afa8a6",
+    "name": "九九八云(🔞)",
+    "url": "https://api.998zy.com/api.php/provide/vod/at/xml",
+    "isEnabled": true
+  },
+  {
+    "id": "source-325011",
+    "name": "色猫资源(🔞)",
+    "url": "https://caiji.semaozy.net/inc/api.php",
+    "isEnabled": true
+  },
+  {
+    "id": "source-ece41d",
+    "name": "玉兔资源(🔞)",
+    "url": "https://apiyutu.com/api.php/provide/vod",
+    "isEnabled": true
+  },
+  {
+    "id": "source-91c1b0",
+    "name": "奶香资源(🔞)",
+    "url": "https://naixxzy.com/api.php/provide/vod",
+    "isEnabled": true
+  },
+  {
+    "id": "source-787a0f",
+    "name": "百万资源(🔞)",
+    "url": "https://api.bwzym3u8.com/api.php/provide/vod",
+    "isEnabled": true
+  },
+  {
+    "id": "source-9321b5",
+    "name": "桃花资源(🔞)",
+    "url": "https://thzy1.me/api.php/provide/vod/at/xml",
+    "isEnabled": true
+  },
+  {
+    "id": "source-16609b",
+    "name": "雪豹资源(🔞)",
+    "url": "https://api.xbapi.cc/api.php/provide/vod/at/xml",
+    "isEnabled": true
+  },
+  {
+    "id": "source-9840ab",
+    "name": "老鸭资源(🔞)",
+    "url": "https://api.apilyzy.com/api.php/provide/vod/at/xml",
+    "isEnabled": true
+  },
+  {
+    "id": "source-2ffd04",
+    "name": "金坤资源(🔞)",
+    "url": "https://www.jkunzyapi.com/api.php/provide/vod/at/xml",
+    "isEnabled": true
+  },
+  {
+    "id": "source-a58304",
+    "name": "探探资源(🔞)",
+    "url": "https://apittzy.com/api.php/provide/vod/at/xml",
+    "isEnabled": true
+  },
+  {
+    "id": "source-c6759f",
+    "name": "嘛唞资源(🔞)",
+    "url": "https://madoucun.com/api.php/provide/vod/at/xml",
+    "isEnabled": true
+  }
+]
